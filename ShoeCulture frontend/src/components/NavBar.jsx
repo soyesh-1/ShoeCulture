@@ -10,6 +10,7 @@ function NavBar() {
       </div>
       <nav className="nav-links">
         <a href="/#drops">Drops</a>
+        <Link to="/account">Account</Link>
       </nav>
       <div className="nav-actions">
         <Link className="ghost" to="/login">

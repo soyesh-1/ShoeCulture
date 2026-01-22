@@ -40,6 +40,8 @@ function NavBar() {
       <nav className="nav-links">
         <a href="/#drops">Drops</a>
         <Link to="/account">Account</Link>
+        <Link to="/shop">Shop</Link>
+        <Link to="/cart">Cart</Link>
       </nav>
       <div className="nav-actions">
         {isAuthed ? (

@@ -5,6 +5,9 @@ import VerifyEmail from './pages/VerifyEmail.jsx'
 import Login from './pages/Login.jsx'
 import MfaVerify from './pages/MfaVerify.jsx'
 import Account from './pages/Account.jsx'
+import Shop from './pages/Shop.jsx'
+import Product from './pages/Product.jsx'
+import Cart from './pages/Cart.jsx'
 
 function App() {
   return (
@@ -15,6 +18,9 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/mfa" element={<MfaVerify />} />
       <Route path="/account" element={<Account />} />
+      <Route path="/shop" element={<Shop />} />
+      <Route path="/products/:id" element={<Product />} />
+      <Route path="/cart" element={<Cart />} />
     </Routes>
   )
 }

@@ -1,0 +1,54 @@
+.shop {
+  padding: 40px 64px;
+}
+
+.shop-header {
+  margin-bottom: 24px;
+}
+
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.shop-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-soft);
+  display: grid;
+  gap: 16px;
+}
+
+.shop-card-body {
+  display: grid;
+  gap: 6px;
+}
+
+.shop-card-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.price {
+  font-weight: 700;
+}
+
+.empty {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.error {
+  color: #b00020;
+}
+
+@media (max-width: 720px) {
+  .shop {
+    padding: 32px 24px;
+  }
+}

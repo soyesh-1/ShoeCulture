@@ -1,0 +1,111 @@
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 40px;
+  padding: 32px 64px 24px;
+  align-items: center;
+}
+
+.hero-content h1 {
+  font-size: clamp(2.1rem, 4vw, 3.2rem);
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", sans-serif;
+  line-height: 1.15;
+  margin: 12px 0 18px;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--ink-500);
+}
+
+.subhead {
+  font-size: 1.1rem;
+  max-width: 520px;
+  color: var(--ink-600);
+}
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  margin: 24px 0 18px;
+}
+
+.trust-row {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: block;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.stat-label {
+  color: var(--ink-500);
+  font-size: 0.9rem;
+}
+
+.hero-card {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.hero-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.pill {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--ink-600);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+}
+
+.hero-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px 24px;
+  margin: 20px 0;
+}
+
+.label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-400);
+}
+
+.value {
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+@media (max-width: 980px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .hero {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

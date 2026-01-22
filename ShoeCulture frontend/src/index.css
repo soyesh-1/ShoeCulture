@@ -1,0 +1,51 @@
+:root {
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --ink-900: #111111;
+  --ink-600: #4a4a4a;
+  --ink-500: #6a6a6a;
+  --ink-400: #8a8a8a;
+  --accent-500: #111111;
+  --card: #ffffff;
+  --shadow: 0 16px 40px rgba(17, 17, 17, 0.08);
+  --shadow-soft: 0 10px 24px rgba(17, 17, 17, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: #f7f7f7;
+  color: var(--ink-900);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(17, 17, 17, 0.08);
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}

@@ -1,0 +1,24 @@
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.step {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.step-index {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent-500);
+}
+
+@media (max-width: 980px) {
+  .steps {
+    grid-template-columns: 1fr;
+  }
+}

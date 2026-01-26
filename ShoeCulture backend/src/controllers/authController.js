@@ -50,6 +50,22 @@ const issueJwt = (userId) => {
   });
 };
 
+const sendOtpEmail = async ({ email, otp, subject, otpType, expiresInMinutes }) => {
+  try {
+    await sendEmail({
+      to: email,
+      subject,
+      text: `Your ${otpType} code is ${otp}. It expires in ${expiresInMinutes} minutes.`,
+    });
+  } catch (error) {
+    if (env.otpFallbackToLog) {
+      console.warn(`[OTP:${otpType}] ${email} -> ${otp}`);
+      return;
+    }
+    throw error;
+  }
+};
+
 const isLockedOut = (user) => {
   if (!user.lockoutUntil) {
     return false;
@@ -123,10 +139,12 @@ const register = async (req, res) => {
     passwordHistory: [{ hash: passwordHash, changedAt: new Date() }],
   });
 
-  await sendEmail({
-    to: email,
+  await sendOtpEmail({
+    email,
+    otp,
     subject: "Verify your ShoeCulture account",
-    text: `Your verification code is ${otp}. It expires in 15 minutes.`,
+    otpType: "verification",
+    expiresInMinutes: 15,
   });
 
   await logAuditEvent({
@@ -196,10 +214,12 @@ const resendVerification = async (req, res) => {
   user.emailVerificationExpiresAt = addMinutes(15);
   await user.save();
 
-  await sendEmail({
-    to: email,
+  await sendOtpEmail({
+    email,
+    otp,
     subject: "Verify your ShoeCulture account",
-    text: `Your verification code is ${otp}. It expires in 15 minutes.`,
+    otpType: "verification",
+    expiresInMinutes: 15,
   });
 
   await logAuditEvent({
@@ -244,10 +264,12 @@ const login = async (req, res) => {
   user.mfaOtpExpiresAt = addMinutes(10);
   await user.save();
 
-  await sendEmail({
-    to: user.email,
+  await sendOtpEmail({
+    email: user.email,
+    otp,
     subject: "Your ShoeCulture login OTP",
-    text: `Your login OTP is ${otp}. It expires in 10 minutes.`,
+    otpType: "login",
+    expiresInMinutes: 10,
   });
 
   await logAuditEvent({
@@ -318,10 +340,12 @@ const forgotPassword = async (req, res) => {
     user.passwordResetExpiresAt = addMinutes(15);
     await user.save();
 
-    await sendEmail({
-      to: email,
+    await sendOtpEmail({
+      email,
+      otp,
       subject: "Reset your ShoeCulture password",
-      text: `Your password reset code is ${otp}. It expires in 15 minutes.`,
+      otpType: "password reset",
+      expiresInMinutes: 15,
     });
 
     await logAuditEvent({

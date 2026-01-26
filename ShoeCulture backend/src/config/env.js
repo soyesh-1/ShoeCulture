@@ -15,6 +15,8 @@ const env = {
   smtpUser: process.env.SMTP_USER || "",
   smtpPass: process.env.SMTP_PASS || "",
   smtpFrom: process.env.SMTP_FROM || "",
+  smtpTimeoutMs: Number(process.env.SMTP_TIMEOUT_MS || 8000),
+  otpFallbackToLog: process.env.OTP_FALLBACK_TO_LOG === "true",
 };
 
 module.exports = { env };

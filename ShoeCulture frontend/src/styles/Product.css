@@ -12,6 +12,14 @@
   gap: 20px;
 }
 
+.product-image {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  border-radius: 14px;
+  background: #f2f2f2;
+}
+
 .product-actions {
   display: flex;
   gap: 12px;

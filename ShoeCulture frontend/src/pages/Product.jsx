@@ -47,6 +47,13 @@ function Product() {
       ) : null}
       {product ? (
         <div className="product-card">
+          {product.imageUrl ? (
+            <img
+              className="product-image"
+              src={product.imageUrl}
+              alt={product.name}
+            />
+          ) : null}
           <div>
             <h1>{product.name}</h1>
             <p>{product.description}</p>

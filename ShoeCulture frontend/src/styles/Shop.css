@@ -22,6 +22,14 @@
   gap: 16px;
 }
 
+.shop-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 12px;
+  background: #f2f2f2;
+}
+
 .shop-card-body {
   display: grid;
   gap: 6px;

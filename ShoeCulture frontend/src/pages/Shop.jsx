@@ -76,6 +76,13 @@ function Shop() {
       <div className="shop-grid">
         {products.map((product) => (
           <article key={product._id} className="shop-card">
+            {product.imageUrl ? (
+              <img
+                className="shop-image"
+                src={product.imageUrl}
+                alt={product.name}
+              />
+            ) : null}
             <div className="shop-card-body">
               <h3>{product.name}</h3>
               <p>{product.description}</p>

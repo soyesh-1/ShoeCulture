@@ -24,19 +24,22 @@ const seedProducts = async (req, res) => {
       name: "Apex Runner",
       description: "Lightweight performance shoe for daily runs.",
       price: 12500,
-      imageUrl: "",
+      imageUrl:
+        "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='480' height='320'><rect width='100%25' height='100%25' fill='%23f2f2f2'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23555555' font-family='Arial' font-size='28'>Apex Runner</text></svg>",
     },
     {
       name: "Vault Street",
       description: "Everyday sneaker with durable grip and support.",
       price: 9800,
-      imageUrl: "",
+      imageUrl:
+        "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='480' height='320'><rect width='100%25' height='100%25' fill='%23f2f2f2'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23555555' font-family='Arial' font-size='28'>Vault Street</text></svg>",
     },
     {
       name: "Echo Court",
       description: "Retro inspired build with premium comfort.",
       price: 14200,
-      imageUrl: "",
+      imageUrl:
+        "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='480' height='320'><rect width='100%25' height='100%25' fill='%23f2f2f2'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23555555' font-family='Arial' font-size='28'>Echo Court</text></svg>",
     },
   ];
 

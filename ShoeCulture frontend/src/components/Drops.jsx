@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import '../styles/Drops.css'
 
 function Drops({ drops }) {
@@ -14,7 +15,9 @@ function Drops({ drops }) {
             <h3>{drop.name}</h3>
             <p className="price">{drop.price}</p>
             <p className="drop-meta">Escrow protected. Shipment tracked.</p>
-            <button className="ghost full">View Details</button>
+            <Link className="ghost full" to="/shop">
+              View Details
+            </Link>
           </article>
         ))}
       </div>

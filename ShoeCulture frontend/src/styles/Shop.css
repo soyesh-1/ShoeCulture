@@ -47,6 +47,11 @@
   color: #b00020;
 }
 
+.notice {
+  margin-bottom: 16px;
+  color: var(--ink-600);
+}
+
 @media (max-width: 720px) {
   .shop {
     padding: 32px 24px;

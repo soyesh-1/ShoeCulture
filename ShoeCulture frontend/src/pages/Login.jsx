@@ -20,7 +20,7 @@ function Login() {
     setMessage('')
     setLoading(true)
     try {
-      await request('/auth/login', {
+      const data = await request('/auth/login', {
         method: 'POST',
         body: JSON.stringify(form),
       })

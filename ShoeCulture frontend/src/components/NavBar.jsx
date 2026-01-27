@@ -39,7 +39,6 @@ function NavBar() {
       </div>
       <nav className="nav-links">
         <a href="/#drops">Drops</a>
-        <Link to="/account">Account</Link>
         <Link to="/shop">Shop</Link>
         <Link to="/cart">Cart</Link>
         <Link to="/dashboard">Dashboard</Link>
@@ -47,8 +46,8 @@ function NavBar() {
       <div className="nav-actions">
         {isAuthed ? (
           <>
-            <Link className="ghost" to="/account">
-              Account
+            <Link className="ghost" to="/dashboard">
+              Dashboard
             </Link>
             <button className="ghost" type="button" onClick={handleLogout}>
               Logout

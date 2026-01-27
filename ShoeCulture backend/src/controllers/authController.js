@@ -26,21 +26,6 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
-const resetSchema = z.object({
-  email: emailSchema,
-});
-
-const resetConfirmSchema = z.object({
-  email: emailSchema,
-  otp: z.string().min(6).max(6),
-  newPassword: z.string().min(1),
-});
-
-const changeSchema = z.object({
-  currentPassword: z.string().min(1),
-  newPassword: z.string().min(1),
-});
-
 const issueJwt = (userId) => {
   if (!env.jwtSecret) {
     throw new Error("JWT_SECRET is missing.");
@@ -89,18 +74,6 @@ const resetLockout = async (user) => {
   user.failedLoginAttempts = 0;
   user.lockoutUntil = null;
   await user.save();
-};
-
-const passwordUsedBefore = async (user, password) => {
-  if (await bcrypt.compare(password, user.passwordHash)) {
-    return true;
-  }
-  for (const entry of user.passwordHistory) {
-    if (await bcrypt.compare(password, entry.hash)) {
-      return true;
-    }
-  }
-  return false;
 };
 
 const updatePasswordHistory = (user, currentHash) => {
@@ -198,7 +171,7 @@ const verifyEmail = async (req, res) => {
 };
 
 const resendVerification = async (req, res) => {
-  const parsed = resetSchema.safeParse(req.body);
+  const parsed = z.object({ email: emailSchema }).safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: "Invalid input." });
   }
@@ -224,12 +197,6 @@ const resendVerification = async (req, res) => {
     subject: "Verify your ShoeCulture account",
     otpType: "verification",
     expiresInMinutes: 15,
-  });
-
-  await logAuditEvent({
-    req,
-    action: "auth.verify_email_resend",
-    targetId: String(user._id),
   });
 
   return res.json({ message: "Verification OTP resent." });
@@ -330,126 +297,6 @@ const logout = async (req, res) => {
   return res.json({ message: "Logged out." });
 };
 
-const forgotPassword = async (req, res) => {
-  const parsed = resetSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({ error: "Invalid input." });
-  }
-
-  const { email } = parsed.data;
-  const user = await User.findOne({ email });
-  if (user) {
-    const otp = generateOtp();
-    user.passwordResetTokenHash = hashToken(otp);
-    user.passwordResetExpiresAt = addMinutes(15);
-    await user.save();
-
-    await sendOtpEmail({
-      email,
-      otp,
-      subject: "Reset your ShoeCulture password",
-      otpType: "password reset",
-      expiresInMinutes: 15,
-    });
-
-    await logAuditEvent({
-      req,
-      action: "auth.password_reset_requested",
-      targetId: String(user._id),
-    });
-  }
-
-  return res.json({ message: "If the account exists, an OTP was sent." });
-};
-
-const resetPassword = async (req, res) => {
-  const parsed = resetConfirmSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({ error: "Invalid input." });
-  }
-
-  const { email, otp, newPassword } = parsed.data;
-  const user = await User.findOne({ email });
-  if (!user || !user.passwordResetTokenHash) {
-    return res.status(400).json({ error: "Invalid OTP." });
-  }
-
-  if (!user.passwordResetExpiresAt || user.passwordResetExpiresAt < new Date()) {
-    return res.status(400).json({ error: "OTP expired." });
-  }
-
-  const otpHash = hashToken(otp);
-  if (otpHash !== user.passwordResetTokenHash) {
-    return res.status(400).json({ error: "Invalid OTP." });
-  }
-
-  const policy = validatePassword(newPassword);
-  if (!policy.valid) {
-    return res.status(400).json({ error: policy.errors });
-  }
-
-  if (await passwordUsedBefore(user, newPassword)) {
-    return res.status(400).json({ error: "Password was used before." });
-  }
-
-  const newHash = await bcrypt.hash(newPassword, 12);
-  updatePasswordHistory(user, user.passwordHash);
-  user.passwordHash = newHash;
-  user.passwordChangedAt = new Date();
-  user.passwordResetTokenHash = null;
-  user.passwordResetExpiresAt = null;
-  await user.save();
-
-  await logAuditEvent({
-    req,
-    action: "auth.password_reset_completed",
-    targetId: String(user._id),
-  });
-
-  return res.json({ message: "Password reset successful." });
-};
-
-const changePassword = async (req, res) => {
-  const parsed = changeSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({ error: "Invalid input." });
-  }
-
-  const { currentPassword, newPassword } = parsed.data;
-  const user = await User.findById(req.user._id);
-  if (!user) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-
-  const ok = await bcrypt.compare(currentPassword, user.passwordHash);
-  if (!ok) {
-    return res.status(401).json({ error: "Invalid credentials." });
-  }
-
-  const policy = validatePassword(newPassword);
-  if (!policy.valid) {
-    return res.status(400).json({ error: policy.errors });
-  }
-
-  if (await passwordUsedBefore(user, newPassword)) {
-    return res.status(400).json({ error: "Password was used before." });
-  }
-
-  const newHash = await bcrypt.hash(newPassword, 12);
-  updatePasswordHistory(user, user.passwordHash);
-  user.passwordHash = newHash;
-  user.passwordChangedAt = new Date();
-  await user.save();
-
-  await logAuditEvent({
-    req,
-    action: "auth.password_changed",
-    targetId: String(user._id),
-  });
-
-  return res.json({ message: "Password changed." });
-};
-
 module.exports = {
   register,
   verifyEmail,
@@ -457,7 +304,4 @@ module.exports = {
   login,
   verifyMfa,
   logout,
-  forgotPassword,
-  resetPassword,
-  changePassword,
 };

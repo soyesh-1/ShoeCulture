@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "node src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "clear-auth": "node scripts/clear-auth.js"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +23,7 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.1.5",
     "nodemailer": "^7.0.6",
+    "stripe": "^20.2.0",
     "zod": "^4.3.5"
   }
 }

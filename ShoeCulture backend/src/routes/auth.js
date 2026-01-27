@@ -7,11 +7,7 @@ const {
   login,
   verifyMfa,
   logout,
-  forgotPassword,
-  resetPassword,
-  changePassword,
 } = require("../controllers/authController");
-const { requireAuth } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -28,8 +24,5 @@ router.post("/verify-email/resend", authLimiter, resendVerification);
 router.post("/login", authLimiter, login);
 router.post("/mfa/verify", authLimiter, verifyMfa);
 router.post("/logout", logout);
-router.post("/password/forgot", authLimiter, forgotPassword);
-router.post("/password/reset", authLimiter, resetPassword);
-router.post("/password/change", requireAuth, changePassword);
 
 module.exports = router;

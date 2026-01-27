@@ -21,7 +21,7 @@ function MfaVerify() {
     try {
       await request('/auth/mfa/verify', {
         method: 'POST',
-        body: JSON.stringify({ email, otp }),
+        body: JSON.stringify({ email, token: otp }),
       })
       setMessage('Login successful. Redirecting...')
       setTimeout(() => navigate('/dashboard'), 800)

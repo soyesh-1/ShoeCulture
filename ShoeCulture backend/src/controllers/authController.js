@@ -4,8 +4,9 @@ const { z } = require("zod");
 const User = require("../models/User");
 const { env } = require("../config/env");
 const { validatePassword, HISTORY_LIMIT } = require("../utils/passwordPolicy");
-const { generateOtp, hashToken, addMinutes } = require("../utils/tokens");
-const { sendEmail } = require("../utils/mailer");
+const { addMinutes } = require("../utils/tokens");
+const speakeasy = require("speakeasy");
+const qrcode = require("qrcode");
 const { getAuthCookieOptions } = require("../utils/cookies");
 const { logAuditEvent } = require("../utils/audit");
 
@@ -16,9 +17,8 @@ const registerSchema = z.object({
   password: z.string().min(1),
 });
 
-const verifySchema = z.object({
-  email: emailSchema,
-  otp: z.string().min(6).max(6),
+const totpSchema = z.object({
+  token: z.string().min(6).max(6),
 });
 
 const loginSchema = z.object({
@@ -35,24 +35,11 @@ const issueJwt = (userId) => {
   });
 };
 
-const sendOtpEmail = async ({ email, otp, subject, otpType, expiresInMinutes }) => {
-  try {
-    const info = await sendEmail({
-      to: email,
-      subject,
-      text: `Your ${otpType} code is ${otp}. It expires in ${expiresInMinutes} minutes.`,
-    });
-    if (info?.accepted?.length) {
-      console.log(`[OTP:${otpType}] sent to ${info.accepted.join(", ")}`);
-    }
-  } catch (error) {
-    console.error(`[OTP:${otpType}] email send failed`, error.message || error);
-    if (env.otpFallbackToLog) {
-      console.warn(`[OTP:${otpType}] ${email} -> ${otp}`);
-      return;
-    }
-    throw error;
-  }
+const createTotpSecret = (email) => {
+  const secret = speakeasy.generateSecret({
+    name: `${env.totpIssuer} (${email})`,
+  });
+  return secret;
 };
 
 const isLockedOut = (user) => {
@@ -105,23 +92,10 @@ const register = async (req, res) => {
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
-  const otp = generateOtp();
-  const otpHash = hashToken(otp);
-
   const user = await User.create({
     email,
     passwordHash,
-    emailVerificationTokenHash: otpHash,
-    emailVerificationExpiresAt: addMinutes(15),
     passwordHistory: [{ hash: passwordHash, changedAt: new Date() }],
-  });
-
-  await sendOtpEmail({
-    email,
-    otp,
-    subject: "Verify your ShoeCulture account",
-    otpType: "verification",
-    expiresInMinutes: 15,
   });
 
   await logAuditEvent({
@@ -131,75 +105,59 @@ const register = async (req, res) => {
   });
 
   return res.status(201).json({
-    message: "Registration successful. Check your email for the OTP.",
+    message: "Registration successful. Set up your authenticator app.",
   });
 };
 
-const verifyEmail = async (req, res) => {
-  const parsed = verifySchema.safeParse(req.body);
+const setupTotp = async (req, res) => {
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const secret = createTotpSecret(user.email);
+  user.totpSecret = secret.base32;
+  await user.save();
+
+  const qrDataUrl = await qrcode.toDataURL(secret.otpauth_url);
+  return res.json({
+    qrCode: qrDataUrl,
+    secret: secret.base32,
+  });
+};
+
+const verifyTotpSetup = async (req, res) => {
+  const parsed = totpSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: "Invalid input." });
   }
 
-  const { email, otp } = parsed.data;
-  const user = await User.findOne({ email });
-  if (!user || !user.emailVerificationTokenHash) {
-    return res.status(400).json({ error: "Invalid OTP." });
+  const user = await User.findById(req.user._id);
+  if (!user || !user.totpSecret) {
+    return res.status(400).json({ error: "TOTP is not initialized." });
   }
 
-  if (!user.emailVerificationExpiresAt || user.emailVerificationExpiresAt < new Date()) {
-    return res.status(400).json({ error: "OTP expired." });
+  const verified = speakeasy.totp.verify({
+    secret: user.totpSecret,
+    encoding: "base32",
+    token: parsed.data.token,
+    window: 1,
+  });
+
+  if (!verified) {
+    return res.status(400).json({ error: "Invalid code." });
   }
 
-  const otpHash = hashToken(otp);
-  if (otpHash !== user.emailVerificationTokenHash) {
-    return res.status(400).json({ error: "Invalid OTP." });
-  }
-
-  user.isEmailVerified = true;
-  user.emailVerificationTokenHash = null;
-  user.emailVerificationExpiresAt = null;
+  user.totpEnabled = true;
   await user.save();
 
   await logAuditEvent({
     req,
-    action: "auth.verify_email",
+    action: "auth.totp_enabled",
     targetId: String(user._id),
   });
 
-  return res.json({ message: "Email verified." });
-};
-
-const resendVerification = async (req, res) => {
-  const parsed = z.object({ email: emailSchema }).safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({ error: "Invalid input." });
-  }
-
-  const { email } = parsed.data;
-  const user = await User.findOne({ email });
-  if (!user) {
-    return res.json({ message: "If the account exists, an OTP was sent." });
-  }
-
-  if (user.isEmailVerified) {
-    return res.status(400).json({ error: "Email already verified." });
-  }
-
-  const otp = generateOtp();
-  user.emailVerificationTokenHash = hashToken(otp);
-  user.emailVerificationExpiresAt = addMinutes(15);
-  await user.save();
-
-  await sendOtpEmail({
-    email,
-    otp,
-    subject: "Verify your ShoeCulture account",
-    otpType: "verification",
-    expiresInMinutes: 15,
-  });
-
-  return res.json({ message: "Verification OTP resent." });
+  return res.json({ message: "Authenticator enabled." });
 };
 
 const login = async (req, res) => {
@@ -224,58 +182,42 @@ const login = async (req, res) => {
     return res.status(401).json({ error: "Invalid credentials." });
   }
 
-  if (!user.isEmailVerified) {
-    return res.status(403).json({ error: "Email not verified." });
-  }
-
   await resetLockout(user);
 
-  const otp = generateOtp();
-  user.mfaOtpHash = hashToken(otp);
-  user.mfaOtpExpiresAt = addMinutes(10);
-  await user.save();
+  if (!user.totpEnabled) {
+    return res.json({ message: "TOTP setup required.", setupRequired: true });
+  }
 
-  await sendOtpEmail({
-    email: user.email,
-    otp,
-    subject: "Your ShoeCulture login OTP",
-    otpType: "login",
-    expiresInMinutes: 10,
-  });
-
-  await logAuditEvent({
-    req,
-    action: "auth.login_mfa_sent",
-    targetId: String(user._id),
-  });
-
-  return res.json({ message: "OTP sent.", mfaRequired: true });
+  return res.json({ message: "TOTP required.", mfaRequired: true });
 };
 
 const verifyMfa = async (req, res) => {
-  const parsed = verifySchema.safeParse(req.body);
+  const parsed = z
+    .object({
+      email: emailSchema,
+      token: z.string().min(6).max(6),
+    })
+    .safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: "Invalid input." });
   }
 
-  const { email, otp } = parsed.data;
+  const { email, token } = parsed.data;
   const user = await User.findOne({ email });
-  if (!user || !user.mfaOtpHash) {
-    return res.status(400).json({ error: "Invalid OTP." });
+  if (!user || !user.totpSecret) {
+    return res.status(400).json({ error: "Invalid code." });
   }
 
-  if (!user.mfaOtpExpiresAt || user.mfaOtpExpiresAt < new Date()) {
-    return res.status(400).json({ error: "OTP expired." });
-  }
+  const verified = speakeasy.totp.verify({
+    secret: user.totpSecret,
+    encoding: "base32",
+    token,
+    window: 1,
+  });
 
-  const otpHash = hashToken(otp);
-  if (otpHash !== user.mfaOtpHash) {
-    return res.status(400).json({ error: "Invalid OTP." });
+  if (!verified) {
+    return res.status(400).json({ error: "Invalid code." });
   }
-
-  user.mfaOtpHash = null;
-  user.mfaOtpExpiresAt = null;
-  await user.save();
 
   const token = issueJwt(user._id.toString());
   res.cookie("auth", token, getAuthCookieOptions());
@@ -299,8 +241,8 @@ const logout = async (req, res) => {
 
 module.exports = {
   register,
-  verifyEmail,
-  resendVerification,
+  setupTotp,
+  verifyTotpSetup,
   login,
   verifyMfa,
   logout,

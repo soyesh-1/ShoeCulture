@@ -24,6 +24,10 @@ function Login() {
         method: 'POST',
         body: JSON.stringify(form),
       })
+      if (data.setupRequired) {
+        navigate('/totp-setup')
+        return
+      }
       if (data.mfaRequired) {
         localStorage.setItem('pendingEmail', form.email)
         navigate('/mfa')
@@ -32,20 +36,6 @@ function Login() {
         navigate('/dashboard')
       }
     } catch (err) {
-      if (err.message.includes('Email not verified')) {
-        try {
-          await request('/auth/verify-email/resend', {
-            method: 'POST',
-            body: JSON.stringify({ email: form.email }),
-          })
-        } catch (resendError) {
-          setError(resendError.message)
-          return
-        }
-        localStorage.setItem('pendingEmail', form.email)
-        navigate('/verify-email')
-        return
-      }
       setError(err.message)
     } finally {
       setLoading(false)
@@ -86,9 +76,6 @@ function Login() {
         </form>
         <p className="auth-foot">
           New here? <Link to="/signup">Create account</Link>
-        </p>
-        <p className="auth-foot">
-          Not verified yet? <Link to="/verify-email">Verify email</Link>
         </p>
       </div>
     </div>

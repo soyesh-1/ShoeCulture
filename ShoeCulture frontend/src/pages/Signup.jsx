@@ -25,8 +25,8 @@ function Signup() {
         body: JSON.stringify(form),
       })
       localStorage.setItem('pendingEmail', form.email)
-      setMessage('OTP sent to your email. Verify to continue.')
-      navigate('/verify-email')
+      setMessage('Account created. Set up your authenticator app.')
+      navigate('/totp-setup')
     } catch (err) {
       setError(err.message)
     } finally {

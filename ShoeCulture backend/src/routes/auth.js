@@ -2,12 +2,13 @@ const express = require("express");
 const rateLimit = require("express-rate-limit");
 const {
   register,
-  verifyEmail,
-  resendVerification,
+  setupTotp,
+  verifyTotpSetup,
   login,
   verifyMfa,
   logout,
 } = require("../controllers/authController");
+const { requireAuth } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -19,10 +20,10 @@ const authLimiter = rateLimit({
 });
 
 router.post("/register", authLimiter, register);
-router.post("/verify-email", authLimiter, verifyEmail);
-router.post("/verify-email/resend", authLimiter, resendVerification);
 router.post("/login", authLimiter, login);
 router.post("/mfa/verify", authLimiter, verifyMfa);
 router.post("/logout", logout);
+router.post("/totp/setup", requireAuth, setupTotp);
+router.post("/totp/verify", requireAuth, verifyTotpSetup);
 
 module.exports = router;

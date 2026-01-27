@@ -1,8 +1,9 @@
 const express = require("express");
-const { createCheckoutSession } = require("../controllers/checkoutController");
+const { getMe } = require("../controllers/userController");
 const { requireAuth } = require("../middleware/auth");
+
 const router = express.Router();
 
-router.post("/", requireAuth, createCheckoutSession);
+router.get("/me", requireAuth, getMe);
 
 module.exports = router;

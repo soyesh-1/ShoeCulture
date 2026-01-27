@@ -15,6 +15,12 @@ function NavBar() {
         <Link to="/dashboard">Dashboard</Link>
       </nav>
       <div className="nav-actions">
+        <Link className="ghost" to="/login">
+          Sign In
+        </Link>
+        <Link className="solid" to="/signup">
+          Create Account
+        </Link>
         <Link className="ghost" to="/dashboard">
           Dashboard
         </Link>

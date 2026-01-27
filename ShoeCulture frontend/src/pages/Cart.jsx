@@ -15,6 +15,7 @@ function Cart() {
   const [items, setItems] = useState([])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
+  const [isAuthed, setIsAuthed] = useState(false)
 
   useEffect(() => {
     const loadCart = async () => {
@@ -43,6 +44,15 @@ function Cart() {
       }
     }
     loadCart()
+    const loadSession = async () => {
+      try {
+        await request('/users/me')
+        setIsAuthed(true)
+      } catch (err) {
+        setIsAuthed(false)
+      }
+    }
+    loadSession()
   }, [])
 
   const handleQuantity = (productId, quantity) => {
@@ -68,6 +78,10 @@ function Cart() {
 
   const handleCheckout = async () => {
     try {
+      if (!isAuthed) {
+        setError('Please sign in to checkout.')
+        return
+      }
       const payload = {
         items: items.map((item) => ({
           productId: item.product._id,

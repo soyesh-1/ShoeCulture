@@ -29,6 +29,7 @@ function NavBar() {
   const handleLogout = async () => {
     await request('/auth/logout', { method: 'POST' })
     setIsAuthed(false)
+    localStorage.removeItem('auth')
   }
 
   return (

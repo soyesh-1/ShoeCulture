@@ -15,8 +15,8 @@ function DashboardTopbar() {
         <Link className="ghost" to="/shop">
           Shop
         </Link>
-        <Link className="solid" to="/account">
-          Account
+        <Link className="solid" to="/dashboard/settings">
+          Settings
         </Link>
       </div>
     </header>

@@ -24,6 +24,7 @@ function Login() {
         method: 'POST',
         body: JSON.stringify(form),
       })
+      localStorage.setItem('auth', 'true')
       setMessage('Logged in.')
       navigate('/dashboard')
     } catch (err) {

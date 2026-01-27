@@ -31,7 +31,7 @@ function Product() {
         await request('/users/me')
         setIsAuthed(true)
       } catch (err) {
-        setIsAuthed(false)
+        setIsAuthed(localStorage.getItem('auth') === 'true')
       }
     }
     loadSession()

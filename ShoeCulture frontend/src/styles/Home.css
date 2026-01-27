@@ -4,7 +4,7 @@
 }
 
 .section {
-  padding: 48px 64px;
+  padding: 48px clamp(24px, 4vw, 64px);
 }
 
 .section-header {
@@ -17,7 +17,7 @@
 
 .section-header h2 {
   font-size: clamp(1.6rem, 3vw, 2.2rem);
-  font-family: "Trebuchet MS", "Lucida Sans Unicode", sans-serif;
+  font-family: "Manrope", "Trebuchet MS", "Lucida Sans Unicode", sans-serif;
   margin: 0;
 }
 

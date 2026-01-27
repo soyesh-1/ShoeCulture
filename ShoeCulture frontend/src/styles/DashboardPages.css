@@ -4,11 +4,48 @@
 }
 
 .dashboard-card {
-  background: #ffffff;
-  border-radius: 14px;
+  background: var(--surface);
+  border-radius: 18px;
   padding: 20px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border);
   box-shadow: var(--shadow-soft);
+}
+
+.form-grid {
+  display: grid;
+  gap: 12px;
+  margin: 16px 0 20px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field input,
+.field textarea {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(16, 17, 20, 0.18);
+  font-family: inherit;
+  background: #ffffff;
+}
+
+.field-full {
+  grid-column: 1 / -1;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.error {
+  color: #b00020;
+}
+
+.success {
+  color: #12744b;
 }
 
 .info-grid {
@@ -32,8 +69,8 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   padding: 10px 12px;
-  border-radius: 10px;
-  background: #f7f7f7;
+  border-radius: 12px;
+  background: var(--surface-muted);
 }
 
 .summary {
@@ -41,4 +78,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+@media (min-width: 920px) {
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

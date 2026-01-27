@@ -19,7 +19,6 @@ const env = {
   otpFallbackToLog: process.env.OTP_FALLBACK_TO_LOG === "true",
   stripeSecretKey: process.env.STRIPE_SECRET_KEY || "",
   frontendUrl: process.env.FRONTEND_URL || "http://localhost:5173",
-  totpIssuer: process.env.TOTP_ISSUER || "ShoeCulture",
 };
 
 module.exports = { env };

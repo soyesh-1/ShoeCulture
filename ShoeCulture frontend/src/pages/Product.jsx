@@ -5,6 +5,8 @@ import { addToCart } from '../utils/cart.js'
 import '../styles/Product.css'
 
 const formatPrice = (value) => `Rs ${value.toLocaleString()}`
+const FALLBACK_IMAGE =
+  'https://images.unsplash.com/photo-1528701800489-20be9c7c7c1e?auto=format&fit=crop&w=1200&q=80'
 
 function Product() {
   const { id } = useParams()
@@ -47,13 +49,11 @@ function Product() {
       ) : null}
       {product ? (
         <div className="product-card">
-          {product.imageUrl ? (
-            <img
-              className="product-image"
-              src={product.imageUrl}
-              alt={product.name}
-            />
-          ) : null}
+          <img
+            className="product-image"
+            src={product.imageUrl || FALLBACK_IMAGE}
+            alt={product.name}
+          />
           <div>
             <h1>{product.name}</h1>
             <p>{product.description}</p>

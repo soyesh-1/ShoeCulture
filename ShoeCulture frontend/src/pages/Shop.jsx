@@ -5,6 +5,8 @@ import { addToCart } from '../utils/cart.js'
 import '../styles/Shop.css'
 
 const formatPrice = (value) => `Rs ${value.toLocaleString()}`
+const FALLBACK_IMAGE =
+  'https://images.unsplash.com/photo-1528701800489-20be9c7c7c1e?auto=format&fit=crop&w=1200&q=80'
 
 function Shop() {
   const [products, setProducts] = useState([])
@@ -76,13 +78,11 @@ function Shop() {
       <div className="shop-grid">
         {products.map((product) => (
           <article key={product._id} className="shop-card">
-            {product.imageUrl ? (
-              <img
-                className="shop-image"
-                src={product.imageUrl}
-                alt={product.name}
-              />
-            ) : null}
+            <img
+              className="shop-image"
+              src={product.imageUrl || FALLBACK_IMAGE}
+              alt={product.name}
+            />
             <div className="shop-card-body">
               <h3>{product.name}</h3>
               <p>{product.description}</p>

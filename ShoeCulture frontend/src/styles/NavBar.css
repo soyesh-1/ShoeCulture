@@ -2,18 +2,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 24px 64px;
-  background: #ffffff;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 20px clamp(24px, 4vw, 64px);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
 }
 
 .logo-mark {
-  font-family: "Trebuchet MS", "Lucida Sans Unicode", sans-serif;
+  font-family: "Manrope", "Trebuchet MS", "Lucida Sans Unicode", sans-serif;
   font-size: 1.2rem;
   display: flex;
   align-items: center;
   gap: 12px;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.02em;
 }
 
 .logo-dot {
@@ -26,7 +26,8 @@
 
 .nav-links {
   display: flex;
-  gap: 26px;
+  gap: 22px;
+  color: var(--ink-600);
 }
 
 .nav-actions {

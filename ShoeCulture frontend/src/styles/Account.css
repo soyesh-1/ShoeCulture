@@ -3,17 +3,17 @@
   display: grid;
   place-items: center;
   padding: 32px;
-  background: #f7f7f7;
+  background: var(--bg);
 }
 
 .account-card {
   width: 100%;
   max-width: 520px;
-  background: #ffffff;
-  border-radius: 16px;
+  background: var(--surface);
+  border-radius: 20px;
   padding: 32px;
   box-shadow: var(--shadow-soft);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border);
   display: grid;
   gap: 16px;
 }

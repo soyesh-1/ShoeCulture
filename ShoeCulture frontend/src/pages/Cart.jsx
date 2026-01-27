@@ -10,6 +10,8 @@ import {
 import '../styles/Cart.css'
 
 const formatPrice = (value) => `Rs ${value.toLocaleString()}`
+const FALLBACK_IMAGE =
+  'https://images.unsplash.com/photo-1528701800489-20be9c7c7c1e?auto=format&fit=crop&w=1200&q=80'
 
 function Cart() {
   const [items, setItems] = useState([])
@@ -116,9 +118,16 @@ function Cart() {
       <div className="cart-list">
         {items.map((item) => (
           <div key={item.product._id} className="cart-item">
-            <div>
-              <h3>{item.product.name}</h3>
-              <p>{formatPrice(item.product.price)}</p>
+            <div className="cart-item-info">
+              <img
+                className="cart-image"
+                src={item.product.imageUrl || FALLBACK_IMAGE}
+                alt={item.product.name}
+              />
+              <div>
+                <h3>{item.product.name}</h3>
+                <p>{formatPrice(item.product.price)}</p>
+              </div>
             </div>
             <div className="cart-actions">
               <input

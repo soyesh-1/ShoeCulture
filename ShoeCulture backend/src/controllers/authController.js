@@ -4,21 +4,16 @@ const { z } = require("zod");
 const User = require("../models/User");
 const { env } = require("../config/env");
 const { validatePassword, HISTORY_LIMIT } = require("../utils/passwordPolicy");
-const { addMinutes } = require("../utils/tokens");
-const speakeasy = require("speakeasy");
-const qrcode = require("qrcode");
+const { addMinutes, generateOtp, hashToken } = require("../utils/tokens");
 const { getAuthCookieOptions } = require("../utils/cookies");
 const { logAuditEvent } = require("../utils/audit");
+const { sendEmail } = require("../utils/mailer");
 
 const emailSchema = z.string().email();
 
 const registerSchema = z.object({
   email: emailSchema,
   password: z.string().min(1),
-});
-
-const totpSchema = z.object({
-  token: z.string().min(6).max(6),
 });
 
 const loginSchema = z.object({
@@ -33,13 +28,6 @@ const issueJwt = (userId) => {
   return jwt.sign({ sub: userId }, env.jwtSecret, {
     expiresIn: env.jwtExpiresIn,
   });
-};
-
-const createTotpSecret = (email) => {
-  const secret = speakeasy.generateSecret({
-    name: `${env.totpIssuer} (${email})`,
-  });
-  return secret;
 };
 
 const isLockedOut = (user) => {
@@ -72,6 +60,18 @@ const updatePasswordHistory = (user, currentHash) => {
     changedAt: new Date(),
   });
   user.passwordHistory = user.passwordHistory.slice(0, HISTORY_LIMIT);
+};
+
+const sendOtpEmail = async ({ email, otp }) => {
+  if (env.otpFallbackToLog) {
+    console.log(`[OTP] ${email}: ${otp}`);
+    return;
+  }
+  await sendEmail({
+    to: email,
+    subject: "Your ShoeCulture login code",
+    text: `Your one-time login code is ${otp}. It expires in 10 minutes.`,
+  });
 };
 
 const register = async (req, res) => {
@@ -112,57 +112,6 @@ const register = async (req, res) => {
   });
 };
 
-const setupTotp = async (req, res) => {
-  const user = await User.findById(req.user._id);
-  if (!user) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-
-  const secret = createTotpSecret(user.email);
-  user.totpSecret = secret.base32;
-  await user.save();
-
-  const qrDataUrl = await qrcode.toDataURL(secret.otpauth_url);
-  return res.json({
-    qrCode: qrDataUrl,
-    secret: secret.base32,
-  });
-};
-
-const verifyTotpSetup = async (req, res) => {
-  const parsed = totpSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({ error: "Invalid input." });
-  }
-
-  const user = await User.findById(req.user._id);
-  if (!user || !user.totpSecret) {
-    return res.status(400).json({ error: "TOTP is not initialized." });
-  }
-
-  const verified = speakeasy.totp.verify({
-    secret: user.totpSecret,
-    encoding: "base32",
-    token: parsed.data.token,
-    window: 1,
-  });
-
-  if (!verified) {
-    return res.status(400).json({ error: "Invalid code." });
-  }
-
-  user.totpEnabled = true;
-  await user.save();
-
-  await logAuditEvent({
-    req,
-    action: "auth.totp_enabled",
-    targetId: String(user._id),
-  });
-
-  return res.json({ message: "Authenticator enabled." });
-};
-
 const login = async (req, res) => {
   const parsed = loginSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -187,11 +136,14 @@ const login = async (req, res) => {
 
   await resetLockout(user);
 
-  if (!user.totpEnabled) {
-    return res.json({ message: "TOTP setup required.", setupRequired: true });
-  }
+  const otp = generateOtp();
+  user.mfaOtpHash = hashToken(otp);
+  user.mfaOtpExpiresAt = addMinutes(10);
+  await user.save();
 
-  return res.json({ message: "TOTP required.", mfaRequired: true });
+  await sendOtpEmail({ email: user.email, otp });
+
+  return res.json({ message: "OTP sent.", mfaRequired: true });
 };
 
 const verifyMfa = async (req, res) => {
@@ -205,22 +157,24 @@ const verifyMfa = async (req, res) => {
     return res.status(400).json({ error: "Invalid input." });
   }
 
-  const { email, token: totpToken } = parsed.data;
+  const { email, token: otpToken } = parsed.data;
   const user = await User.findOne({ email });
-  if (!user || !user.totpSecret) {
+  if (!user || !user.mfaOtpHash || !user.mfaOtpExpiresAt) {
     return res.status(400).json({ error: "Invalid code." });
   }
 
-  const verified = speakeasy.totp.verify({
-    secret: user.totpSecret,
-    encoding: "base32",
-    token: totpToken,
-    window: 1,
-  });
+  if (user.mfaOtpExpiresAt.getTime() < Date.now()) {
+    return res.status(400).json({ error: "OTP expired." });
+  }
 
-  if (!verified) {
+  const expectedHash = hashToken(otpToken);
+  if (expectedHash !== user.mfaOtpHash) {
     return res.status(400).json({ error: "Invalid code." });
   }
+
+  user.mfaOtpHash = null;
+  user.mfaOtpExpiresAt = null;
+  await user.save();
 
   const authToken = issueJwt(user._id.toString());
   res.cookie("auth", authToken, getAuthCookieOptions());
@@ -244,8 +198,6 @@ const logout = async (req, res) => {
 
 module.exports = {
   register,
-  setupTotp,
-  verifyTotpSetup,
   login,
   verifyMfa,
   logout,

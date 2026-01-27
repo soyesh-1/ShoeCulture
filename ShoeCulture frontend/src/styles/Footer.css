@@ -1,10 +1,10 @@
 .footer {
-  padding: 32px 64px 48px;
+  padding: 32px clamp(24px, 4vw, 64px) 48px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
-  background: #ffffff;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
 }
 
 .footer-links {
@@ -14,8 +14,6 @@
 
 @media (max-width: 720px) {
   .footer {
-    padding-left: 24px;
-    padding-right: 24px;
     flex-direction: column;
     gap: 16px;
   }

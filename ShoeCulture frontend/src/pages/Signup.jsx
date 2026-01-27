@@ -24,9 +24,8 @@ function Signup() {
         method: 'POST',
         body: JSON.stringify(form),
       })
-      localStorage.setItem('pendingEmail', form.email)
-      setMessage('Account created. Set up your authenticator app.')
-      navigate('/totp-setup')
+      setMessage('Account created. You can sign in now.')
+      navigate('/login')
     } catch (err) {
       setError(err.message)
     } finally {

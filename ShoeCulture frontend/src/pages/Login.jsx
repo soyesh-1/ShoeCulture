@@ -24,10 +24,6 @@ function Login() {
         method: 'POST',
         body: JSON.stringify(form),
       })
-      if (data.setupRequired) {
-        navigate('/totp-setup')
-        return
-      }
       if (data.mfaRequired) {
         localStorage.setItem('pendingEmail', form.email)
         navigate('/mfa')

@@ -22,8 +22,6 @@ const userSchema = new mongoose.Schema(
     emailVerificationExpiresAt: { type: Date, default: null },
     mfaOtpHash: { type: String, default: null },
     mfaOtpExpiresAt: { type: Date, default: null },
-    totpSecret: { type: String, default: null },
-    totpEnabled: { type: Boolean, default: false },
     passwordResetTokenHash: { type: String, default: null },
     passwordResetExpiresAt: { type: Date, default: null },
     passwordHistory: { type: [passwordHistorySchema], default: [] },

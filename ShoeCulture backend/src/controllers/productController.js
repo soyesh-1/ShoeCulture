@@ -1,5 +1,13 @@
 const Product = require("../models/Product");
 
+const parsePrice = (value) => {
+  const numberValue = Number(value);
+  if (Number.isNaN(numberValue) || !Number.isFinite(numberValue)) {
+    return null;
+  }
+  return numberValue;
+};
+
 const listProducts = async (req, res) => {
   const products = await Product.find({ isActive: true }).sort({ createdAt: -1 });
   return res.json(products);
@@ -25,21 +33,21 @@ const seedProducts = async (req, res) => {
       description: "Lightweight performance shoe for daily runs.",
       price: 12500,
       imageUrl:
-        "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='480' height='320'><rect width='100%25' height='100%25' fill='%23f2f2f2'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23555555' font-family='Arial' font-size='28'>Apex Runner</text></svg>",
+        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1200&q=80",
     },
     {
       name: "Vault Street",
       description: "Everyday sneaker with durable grip and support.",
       price: 9800,
       imageUrl:
-        "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='480' height='320'><rect width='100%25' height='100%25' fill='%23f2f2f2'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23555555' font-family='Arial' font-size='28'>Vault Street</text></svg>",
+        "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=1200&q=80",
     },
     {
       name: "Echo Court",
       description: "Retro inspired build with premium comfort.",
       price: 14200,
       imageUrl:
-        "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='480' height='320'><rect width='100%25' height='100%25' fill='%23f2f2f2'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23555555' font-family='Arial' font-size='28'>Echo Court</text></svg>",
+        "https://images.unsplash.com/photo-1542280756-74b2f55e73ab?auto=format&fit=crop&w=1200&q=80",
     },
   ];
 
@@ -47,4 +55,26 @@ const seedProducts = async (req, res) => {
   return res.status(201).json(created);
 };
 
-module.exports = { listProducts, getProduct, seedProducts };
+const createProduct = async (req, res) => {
+  const { name, description, price, imageUrl = "" } = req.body || {};
+  if (!name || !description || price === undefined) {
+    return res.status(400).json({ error: "Missing required fields." });
+  }
+
+  const parsedPrice = parsePrice(price);
+  if (parsedPrice === null || parsedPrice <= 0) {
+    return res.status(400).json({ error: "Invalid price." });
+  }
+
+  const product = await Product.create({
+    name: String(name).trim(),
+    description: String(description).trim(),
+    price: parsedPrice,
+    imageUrl: String(imageUrl || "").trim(),
+    isActive: true,
+  });
+
+  return res.status(201).json(product);
+};
+
+module.exports = { listProducts, getProduct, seedProducts, createProduct };

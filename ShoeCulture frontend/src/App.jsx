@@ -2,7 +2,6 @@ import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home.jsx'
 import Signup from './pages/Signup.jsx'
 import Login from './pages/Login.jsx'
-import TotpSetup from './pages/TotpSetup.jsx'
 import MfaVerify from './pages/MfaVerify.jsx'
 import Shop from './pages/Shop.jsx'
 import Product from './pages/Product.jsx'
@@ -21,7 +20,6 @@ function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/signup" element={<Signup />} />
-      <Route path="/totp-setup" element={<TotpSetup />} />
       <Route path="/login" element={<Login />} />
       <Route path="/mfa" element={<MfaVerify />} />
       <Route path="/shop" element={<Shop />} />

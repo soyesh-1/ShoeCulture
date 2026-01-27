@@ -5,10 +5,10 @@
 }
 
 .drop-card {
-  background: #fff;
-  border-radius: 14px;
+  background: var(--surface);
+  border-radius: 18px;
   padding: 20px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border);
   box-shadow: var(--shadow-soft);
   display: grid;
   gap: 10px;
@@ -17,7 +17,7 @@
 .drop-badge {
   font-size: 0.8rem;
   color: var(--ink-500);
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--border);
   padding: 4px 10px;
   border-radius: 999px;
   width: fit-content;

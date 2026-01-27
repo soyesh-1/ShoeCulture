@@ -66,6 +66,26 @@ function Cart() {
     0
   )
 
+  const handleCheckout = async () => {
+    try {
+      const payload = {
+        items: items.map((item) => ({
+          productId: item.product._id,
+          quantity: item.quantity,
+        })),
+      }
+      const data = await request('/checkout', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      })
+      if (data.url) {
+        window.location.href = data.url
+      }
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
   return (
     <div className="cart">
       <h1>Your cart</h1>
@@ -112,9 +132,14 @@ function Cart() {
             <span>Total</span>
             <strong>{formatPrice(total)}</strong>
           </div>
-          <button className="solid" type="button" onClick={clearCart}>
-            Clear cart
-          </button>
+          <div className="cart-buttons">
+            <button className="ghost" type="button" onClick={clearCart}>
+              Clear cart
+            </button>
+            <button className="solid" type="button" onClick={handleCheckout}>
+              Checkout
+            </button>
+          </div>
         </div>
       ) : null}
     </div>

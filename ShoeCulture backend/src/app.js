@@ -8,6 +8,7 @@ const healthRoutes = require("./routes/health");
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/users");
 const productRoutes = require("./routes/products");
+const checkoutRoutes = require("./routes/checkout");
 const { notFound } = require("./middleware/notFound");
 const { errorHandler } = require("./middleware/errorHandler");
 
@@ -36,6 +37,7 @@ app.use("/api/v1/health", healthRoutes);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/products", productRoutes);
+app.use("/api/v1/checkout", checkoutRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

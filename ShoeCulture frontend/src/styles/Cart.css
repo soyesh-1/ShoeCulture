@@ -41,6 +41,11 @@
   border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
+.cart-buttons {
+  display: flex;
+  gap: 12px;
+}
+
 .empty {
   display: grid;
   gap: 12px;

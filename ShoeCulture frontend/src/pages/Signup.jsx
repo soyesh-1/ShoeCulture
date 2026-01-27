@@ -24,8 +24,9 @@ function Signup() {
         method: 'POST',
         body: JSON.stringify(form),
       })
-      setMessage('Account created. You can sign in now.')
-      navigate('/login')
+      localStorage.setItem('pendingEmail', form.email)
+      setMessage('OTP sent to your email. Verify to continue.')
+      navigate('/verify-email')
     } catch (err) {
       setError(err.message)
     } finally {
@@ -60,7 +61,11 @@ function Signup() {
             />
           </label>
           {error ? <div className="error">{error}</div> : null}
-          {message ? <div className="success">{message}</div> : null}
+          {message ? (
+            <div className="success">
+              {message} <Link to="/verify-email">Verify email</Link>
+            </div>
+          ) : null}
           <button className="solid" type="submit" disabled={loading}>
             {loading ? 'Creating...' : 'Create account'}
           </button>

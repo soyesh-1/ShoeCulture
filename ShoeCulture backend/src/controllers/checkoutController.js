@@ -77,7 +77,7 @@ const createCheckoutSession = async (req, res) => {
     .filter(Boolean);
 
   const order = await Order.create({
-    userId: req.user._id,
+    userId: req.user?._id || null,
     items: orderItems,
     total,
   });
@@ -89,7 +89,7 @@ const createCheckoutSession = async (req, res) => {
     cancel_url: `${env.frontendUrl}/cart?canceled=true`,
     metadata: {
       orderId: String(order._id),
-      userId: String(req.user._id),
+      userId: req.user?._id ? String(req.user._id) : "guest",
     },
   });
 

@@ -11,8 +11,6 @@ function Shop() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
   const [seeding, setSeeding] = useState(false)
-  const [isAuthed, setIsAuthed] = useState(false)
-  const [authMessage, setAuthMessage] = useState('')
 
   const loadProducts = async () => {
     setLoading(true)
@@ -28,15 +26,6 @@ function Shop() {
 
   useEffect(() => {
     loadProducts()
-    const loadSession = async () => {
-      try {
-        await request('/users/me')
-        setIsAuthed(true)
-      } catch (err) {
-        setIsAuthed(false)
-      }
-    }
-    loadSession()
   }, [])
 
   const handleSeed = async () => {
@@ -58,11 +47,6 @@ function Shop() {
         <h1>ShoeCulture Shop</h1>
         <p>Browse the latest shoes and add them to your cart.</p>
       </header>
-      {!isAuthed ? (
-        <div className="notice">
-          Please <Link to="/login">sign in</Link> to add items to your cart.
-        </div>
-      ) : null}
       {error ? <div className="error">{error}</div> : null}
       {loading ? <p>Loading products...</p> : null}
       {!loading && products.length === 0 ? (
@@ -95,13 +79,7 @@ function Shop() {
               <button
                 className="solid"
                 type="button"
-                onClick={() => {
-                  if (!isAuthed) {
-                    setAuthMessage('Please sign in to add items to cart.')
-                    return
-                  }
-                  addToCart(product._id)
-                }}
+                onClick={() => addToCart(product._id)}
               >
                 Add to cart
               </button>
@@ -109,7 +87,6 @@ function Shop() {
           </article>
         ))}
       </div>
-      {authMessage ? <div className="error">{authMessage}</div> : null}
     </div>
   )
 }

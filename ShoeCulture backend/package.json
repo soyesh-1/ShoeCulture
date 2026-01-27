@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "node src/server.js",
-    "start": "node src/server.js",
-    "clear-auth": "node scripts/clear-auth.js"
+    "start": "node src/server.js"
   },
   "keywords": [],
   "author": "",

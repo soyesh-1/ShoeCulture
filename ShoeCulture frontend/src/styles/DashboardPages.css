@@ -1,0 +1,44 @@
+.dashboard-page {
+  display: grid;
+  gap: 20px;
+}
+
+.dashboard-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-soft);
+}
+
+.info-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.info-grid div {
+  display: grid;
+  gap: 6px;
+}
+
+.table {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f7f7f7;
+}
+
+.summary {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

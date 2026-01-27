@@ -42,6 +42,7 @@ function NavBar() {
         <Link to="/account">Account</Link>
         <Link to="/shop">Shop</Link>
         <Link to="/cart">Cart</Link>
+        <Link to="/dashboard">Dashboard</Link>
       </nav>
       <div className="nav-actions">
         {isAuthed ? (

@@ -1,0 +1,31 @@
+.dashboard-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 40px;
+  background: #ffffff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.dashboard-topbar h1 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.dashboard-topbar p {
+  margin: 4px 0 0;
+  color: var(--ink-600);
+}
+
+.dashboard-actions {
+  display: flex;
+  gap: 12px;
+}
+
+@media (max-width: 720px) {
+  .dashboard-topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}

@@ -49,3 +49,22 @@ img {
   max-width: 100%;
   display: block;
 }
+
+.solid,
+.ghost {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.solid {
+  background: var(--ink-900);
+  color: #ffffff;
+}
+
+.ghost {
+  background: transparent;
+  border-color: rgba(0, 0, 0, 0.16);
+  color: var(--ink-900);
+}

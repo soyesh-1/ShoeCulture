@@ -20,31 +20,13 @@ function Login() {
     setMessage('')
     setLoading(true)
     try {
-      const data = await request('/auth/login', {
+      await request('/auth/login', {
         method: 'POST',
         body: JSON.stringify(form),
       })
-      if (data.mfaRequired) {
-        localStorage.setItem('pendingEmail', form.email)
-        navigate('/mfa')
-      } else {
-        setMessage('Logged in.')
-      }
+      setMessage('Logged in.')
+      navigate('/account')
     } catch (err) {
-      if (err.message.includes('Email not verified')) {
-        try {
-          await request('/auth/verify-email/resend', {
-            method: 'POST',
-            body: JSON.stringify({ email: form.email }),
-          })
-        } catch (resendError) {
-          setError(resendError.message)
-          return
-        }
-        localStorage.setItem('pendingEmail', form.email)
-        navigate('/verify-email')
-        return
-      }
       setError(err.message)
     } finally {
       setLoading(false)
@@ -85,9 +67,6 @@ function Login() {
         </form>
         <p className="auth-foot">
           New here? <Link to="/signup">Create account</Link>
-        </p>
-        <p className="auth-foot">
-          Not verified yet? <Link to="/verify-email">Verify email</Link>
         </p>
       </div>
     </div>

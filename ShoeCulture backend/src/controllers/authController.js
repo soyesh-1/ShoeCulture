@@ -128,23 +128,11 @@ const register = async (req, res) => {
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
-  const otp = generateOtp();
-  const otpHash = hashToken(otp);
-
   const user = await User.create({
     email,
     passwordHash,
-    emailVerificationTokenHash: otpHash,
-    emailVerificationExpiresAt: addMinutes(15),
+    isEmailVerified: true,
     passwordHistory: [{ hash: passwordHash, changedAt: new Date() }],
-  });
-
-  await sendOtpEmail({
-    email,
-    otp,
-    subject: "Verify your ShoeCulture account",
-    otpType: "verification",
-    expiresInMinutes: 15,
   });
 
   await logAuditEvent({
@@ -253,32 +241,21 @@ const login = async (req, res) => {
     return res.status(401).json({ error: "Invalid credentials." });
   }
 
-  if (!user.isEmailVerified) {
-    return res.status(403).json({ error: "Email not verified." });
-  }
-
   await resetLockout(user);
 
-  const otp = generateOtp();
-  user.mfaOtpHash = hashToken(otp);
-  user.mfaOtpExpiresAt = addMinutes(10);
-  await user.save();
-
-  await sendOtpEmail({
-    email: user.email,
-    otp,
-    subject: "Your ShoeCulture login OTP",
-    otpType: "login",
-    expiresInMinutes: 10,
-  });
+  const token = issueJwt(user._id.toString());
+  res.cookie("auth", token, getAuthCookieOptions());
 
   await logAuditEvent({
     req,
-    action: "auth.login_mfa_sent",
+    action: "auth.login_success",
     targetId: String(user._id),
   });
 
-  return res.json({ message: "OTP sent.", mfaRequired: true });
+  return res.json({
+    message: "Login successful.",
+    user: { id: user._id, email: user.email, role: user.role },
+  });
 };
 
 const verifyMfa = async (req, res) => {

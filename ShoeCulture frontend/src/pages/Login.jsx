@@ -25,7 +25,7 @@ function Login() {
         body: JSON.stringify(form),
       })
       setMessage('Logged in.')
-      navigate('/account')
+      navigate('/dashboard')
     } catch (err) {
       setError(err.message)
     } finally {

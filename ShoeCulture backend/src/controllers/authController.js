@@ -61,6 +61,7 @@ const sendOtpEmail = async ({ email, otp, subject, otpType, expiresInMinutes }) 
       console.log(`[OTP:${otpType}] sent to ${info.accepted.join(", ")}`);
     }
   } catch (error) {
+    console.error(`[OTP:${otpType}] email send failed`, error.message || error);
     if (env.otpFallbackToLog) {
       console.warn(`[OTP:${otpType}] ${email} -> ${otp}`);
       return;

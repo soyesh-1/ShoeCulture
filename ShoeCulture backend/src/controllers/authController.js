@@ -52,11 +52,14 @@ const issueJwt = (userId) => {
 
 const sendOtpEmail = async ({ email, otp, subject, otpType, expiresInMinutes }) => {
   try {
-    await sendEmail({
+    const info = await sendEmail({
       to: email,
       subject,
       text: `Your ${otpType} code is ${otp}. It expires in ${expiresInMinutes} minutes.`,
     });
+    if (info?.accepted?.length) {
+      console.log(`[OTP:${otpType}] sent to ${info.accepted.join(", ")}`);
+    }
   } catch (error) {
     if (env.otpFallbackToLog) {
       console.warn(`[OTP:${otpType}] ${email} -> ${otp}`);

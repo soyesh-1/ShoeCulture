@@ -22,12 +22,13 @@ const buildTransporter = () => {
 
 const sendEmail = async ({ to, subject, text }) => {
   const transporter = buildTransporter();
-  await transporter.sendMail({
+  const info = await transporter.sendMail({
     from: env.smtpFrom,
     to,
     subject,
     text,
   });
+  return info;
 };
 
 module.exports = { sendEmail };

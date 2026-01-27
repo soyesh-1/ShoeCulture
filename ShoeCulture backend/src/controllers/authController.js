@@ -202,7 +202,7 @@ const verifyMfa = async (req, res) => {
     return res.status(400).json({ error: "Invalid input." });
   }
 
-  const { email, token } = parsed.data;
+  const { email, token: totpToken } = parsed.data;
   const user = await User.findOne({ email });
   if (!user || !user.totpSecret) {
     return res.status(400).json({ error: "Invalid code." });
@@ -211,7 +211,7 @@ const verifyMfa = async (req, res) => {
   const verified = speakeasy.totp.verify({
     secret: user.totpSecret,
     encoding: "base32",
-    token,
+    token: totpToken,
     window: 1,
   });
 
@@ -219,8 +219,8 @@ const verifyMfa = async (req, res) => {
     return res.status(400).json({ error: "Invalid code." });
   }
 
-  const token = issueJwt(user._id.toString());
-  res.cookie("auth", token, getAuthCookieOptions());
+  const authToken = issueJwt(user._id.toString());
+  res.cookie("auth", authToken, getAuthCookieOptions());
 
   await logAuditEvent({
     req,

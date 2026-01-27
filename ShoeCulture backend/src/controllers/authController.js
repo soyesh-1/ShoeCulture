@@ -98,6 +98,9 @@ const register = async (req, res) => {
     passwordHistory: [{ hash: passwordHash, changedAt: new Date() }],
   });
 
+  const authToken = issueJwt(user._id.toString());
+  res.cookie("auth", authToken, getAuthCookieOptions());
+
   await logAuditEvent({
     req,
     action: "auth.register",

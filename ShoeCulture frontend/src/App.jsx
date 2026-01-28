@@ -2,11 +2,13 @@ import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home.jsx'
 import Signup from './pages/Signup.jsx'
 import Login from './pages/Login.jsx'
+import VerifyEmail from './pages/VerifyEmail.jsx'
 import MfaVerify from './pages/MfaVerify.jsx'
 import Shop from './pages/Shop.jsx'
 import Product from './pages/Product.jsx'
 import Cart from './pages/Cart.jsx'
 import DashboardLayout from './pages/dashboard/DashboardLayout.jsx'
+import RequireAuth from './components/RequireAuth.jsx'
 import DashboardHome from './pages/dashboard/DashboardHome.jsx'
 import DashboardProducts from './pages/dashboard/DashboardProducts.jsx'
 import DashboardCart from './pages/dashboard/DashboardCart.jsx'
@@ -21,11 +23,19 @@ function App() {
       <Route path="/" element={<Home />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/mfa" element={<MfaVerify />} />
       <Route path="/shop" element={<Shop />} />
       <Route path="/products/:id" element={<Product />} />
       <Route path="/cart" element={<Cart />} />
-      <Route path="/dashboard" element={<DashboardLayout />}>
+      <Route
+        path="/dashboard"
+        element={
+          <RequireAuth>
+            <DashboardLayout />
+          </RequireAuth>
+        }
+      >
         <Route index element={<DashboardHome />} />
         <Route path="products" element={<DashboardProducts />} />
         <Route path="cart" element={<DashboardCart />} />

@@ -1,17 +1,44 @@
 const API_BASE = import.meta.env.VITE_API_BASE || '/api/v1'
+let csrfToken = null
+
+const getCsrfToken = async () => {
+  if (csrfToken) {
+    return csrfToken
+  }
+  const response = await fetch(`${API_BASE}/security/csrf`, {
+    credentials: 'include',
+  })
+  const data = await response.json().catch(() => ({}))
+  csrfToken = data.token || null
+  return csrfToken
+}
 
 const request = async (path, options = {}) => {
+  const method = (options.method || 'GET').toUpperCase()
+  const requiresCsrf = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(options.headers || {}),
+  }
+
+  if (requiresCsrf) {
+    const token = await getCsrfToken()
+    if (token) {
+      headers['x-csrf-token'] = token
+    }
+  }
+
   const response = await fetch(`${API_BASE}${path}`, {
     credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options.headers || {}),
-    },
     ...options,
+    headers,
   })
 
   const data = await response.json().catch(() => ({}))
   if (!response.ok) {
+    if (data.error === 'Invalid CSRF token.') {
+      csrfToken = null
+    }
     const message = data.error || 'Request failed.'
     throw new Error(Array.isArray(message) ? message.join(' ') : message)
   }

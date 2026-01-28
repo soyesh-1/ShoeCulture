@@ -1,4 +1,5 @@
 const Product = require("../models/Product");
+const { logAuditEvent } = require("../utils/audit");
 
 const parsePrice = (value) => {
   const numberValue = Number(value);
@@ -66,6 +67,10 @@ const createProduct = async (req, res) => {
     return res.status(400).json({ error: "Invalid price." });
   }
 
+  if (!imageUrl) {
+    return res.status(400).json({ error: "Image URL is required." });
+  }
+
   const product = await Product.create({
     name: String(name).trim(),
     description: String(description).trim(),
@@ -74,7 +79,79 @@ const createProduct = async (req, res) => {
     isActive: true,
   });
 
+  await logAuditEvent({
+    req,
+    action: "product.created",
+    targetId: String(product._id),
+  });
+
   return res.status(201).json(product);
 };
 
-module.exports = { listProducts, getProduct, seedProducts, createProduct };
+const updateProduct = async (req, res) => {
+  const { name, description, price, imageUrl, isActive } = req.body || {};
+  const updates = {};
+
+  if (name !== undefined) {
+    updates.name = String(name).trim();
+  }
+  if (description !== undefined) {
+    updates.description = String(description).trim();
+  }
+  if (price !== undefined) {
+    const parsedPrice = parsePrice(price);
+    if (parsedPrice === null || parsedPrice <= 0) {
+      return res.status(400).json({ error: "Invalid price." });
+    }
+    updates.price = parsedPrice;
+  }
+  if (imageUrl !== undefined) {
+    updates.imageUrl = String(imageUrl).trim();
+  }
+  if (isActive !== undefined) {
+    updates.isActive = Boolean(isActive);
+  }
+
+  const product = await Product.findByIdAndUpdate(req.params.id, updates, {
+    new: true,
+  });
+  if (!product) {
+    return res.status(404).json({ error: "Product not found." });
+  }
+
+  await logAuditEvent({
+    req,
+    action: "product.updated",
+    targetId: String(product._id),
+  });
+
+  return res.json(product);
+};
+
+const deleteProduct = async (req, res) => {
+  const product = await Product.findByIdAndUpdate(
+    req.params.id,
+    { isActive: false },
+    { new: true }
+  );
+  if (!product) {
+    return res.status(404).json({ error: "Product not found." });
+  }
+
+  await logAuditEvent({
+    req,
+    action: "product.deleted",
+    targetId: String(product._id),
+  });
+
+  return res.json({ message: "Product removed." });
+};
+
+module.exports = {
+  listProducts,
+  getProduct,
+  seedProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+};

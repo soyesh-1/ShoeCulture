@@ -1,5 +1,6 @@
 const express = require("express");
 const multer = require("multer");
+const rateLimit = require("express-rate-limit");
 const path = require("path");
 const fs = require("fs");
 const { requireAuth } = require("../middleware/auth");
@@ -36,10 +37,18 @@ const upload = multer({
   limits: { fileSize: 2 * 1024 * 1024 },
 });
 
+const uploadLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  limit: 20,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+});
+
 router.post(
   "/images",
   requireAuth,
   requireRole(["admin"]),
+  uploadLimiter,
   upload.single("image"),
   async (req, res) => {
     if (!req.file) {

@@ -10,6 +10,10 @@ const env = {
   mongoUri: process.env.MONGO_URI || "",
   jwtSecret: process.env.JWT_SECRET || "",
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "2h",
+  passwordExpiresDays: Number(process.env.PASSWORD_EXPIRES_DAYS || 90),
+  captchaRequired: process.env.CAPTCHA_REQUIRED === "true",
+  captchaTtlMinutes: Number(process.env.CAPTCHA_TTL_MINUTES || 5),
+  csrfTtlMinutes: Number(process.env.CSRF_TTL_MINUTES || 120),
   smtpHost: process.env.SMTP_HOST || "",
   smtpPort: Number(process.env.SMTP_PORT || 587),
   smtpUser: process.env.SMTP_USER || "",
@@ -19,6 +23,7 @@ const env = {
   otpFallbackToLog: process.env.OTP_FALLBACK_TO_LOG === "true",
   stripeSecretKey: process.env.STRIPE_SECRET_KEY || "",
   frontendUrl: process.env.FRONTEND_URL || "http://localhost:5173",
+  encryptionKey: process.env.ENCRYPTION_KEY || "",
 };
 
 module.exports = { env };

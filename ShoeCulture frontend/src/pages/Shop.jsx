@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { request } from '../utils/api.js'
 import { addToCart } from '../utils/cart.js'
 import '../styles/Shop.css'
@@ -9,12 +9,12 @@ const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1528701800489-20be9c7c7c1e?auto=format&fit=crop&w=1200&q=80'
 
 function Shop() {
+  const navigate = useNavigate()
   const [products, setProducts] = useState([])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
   const [seeding, setSeeding] = useState(false)
   const [isAuthed, setIsAuthed] = useState(false)
-  const [authMessage, setAuthMessage] = useState('')
 
   const loadProducts = async () => {
     setLoading(true)
@@ -97,7 +97,7 @@ function Shop() {
                 type="button"
                 onClick={() => {
                   if (!isAuthed) {
-                    setAuthMessage('Please sign in to add items to cart.')
+                    navigate('/login')
                     return
                   }
                   addToCart(product._id)
@@ -109,7 +109,7 @@ function Shop() {
           </article>
         ))}
       </div>
-      {authMessage ? <div className="error">{authMessage}</div> : null}
+      
     </div>
   )
 }

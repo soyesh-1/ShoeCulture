@@ -9,6 +9,7 @@ import Product from './pages/Product.jsx'
 import Cart from './pages/Cart.jsx'
 import DashboardLayout from './pages/dashboard/DashboardLayout.jsx'
 import RequireAuth from './components/RequireAuth.jsx'
+import RequireAdmin from './components/RequireAdmin.jsx'
 import DashboardHome from './pages/dashboard/DashboardHome.jsx'
 import DashboardProducts from './pages/dashboard/DashboardProducts.jsx'
 import DashboardCart from './pages/dashboard/DashboardCart.jsx'
@@ -37,11 +38,32 @@ function App() {
         }
       >
         <Route index element={<DashboardHome />} />
-        <Route path="products" element={<DashboardProducts />} />
+        <Route
+          path="products"
+          element={
+            <RequireAdmin>
+              <DashboardProducts />
+            </RequireAdmin>
+          }
+        />
         <Route path="cart" element={<DashboardCart />} />
         <Route path="orders" element={<DashboardOrders />} />
-        <Route path="users" element={<DashboardUsers />} />
-        <Route path="security" element={<DashboardSecurity />} />
+        <Route
+          path="users"
+          element={
+            <RequireAdmin>
+              <DashboardUsers />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path="security"
+          element={
+            <RequireAdmin>
+              <DashboardSecurity />
+            </RequireAdmin>
+          }
+        />
         <Route path="settings" element={<DashboardSettings />} />
       </Route>
     </Routes>

@@ -7,6 +7,8 @@ function DashboardSecurity() {
   const { profile } = useSession()
   const [logs, setLogs] = useState([])
   const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
 
   if (!profile || profile.role !== 'admin') {
     return (
@@ -21,15 +23,17 @@ function DashboardSecurity() {
 
   useEffect(() => {
     const loadLogs = async () => {
+      setLoading(true)
       try {
-        const data = await request('/admin/audit?limit=50')
+        const data = await request(`/admin/audit?limit=20&page=${page}`)
         setLogs(data.items || [])
+        setTotal(data.total || 0)
       } finally {
         setLoading(false)
       }
     }
     loadLogs()
-  }, [])
+  }, [page])
 
   return (
     <div className="dashboard-page">
@@ -46,6 +50,27 @@ function DashboardSecurity() {
               <span>{log.ip || '-'}</span>
             </div>
           ))}
+        </div>
+        <div className="table-actions">
+          <button
+            className="ghost"
+            type="button"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1 || loading}
+          >
+            Previous
+          </button>
+          <span>
+            Page {page}
+          </span>
+          <button
+            className="ghost"
+            type="button"
+            onClick={() => setPage((p) => p + 1)}
+            disabled={page * 20 >= total || loading}
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>

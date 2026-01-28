@@ -164,6 +164,14 @@
   grid-template-columns: 1.4fr 1.2fr 1fr 1fr;
 }
 
+.table-actions {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--ink-600);
+}
+
 .summary {
   margin-top: 16px;
   display: flex;

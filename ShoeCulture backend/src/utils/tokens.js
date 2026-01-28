@@ -9,5 +9,6 @@ const hashToken = (token) => {
 };
 
 const addMinutes = (minutes) => new Date(Date.now() + minutes * 60 * 1000);
+const addDays = (days) => new Date(Date.now() + days * 24 * 60 * 60 * 1000);
 
-module.exports = { generateOtp, hashToken, addMinutes };
+module.exports = { generateOtp, hashToken, addMinutes, addDays };

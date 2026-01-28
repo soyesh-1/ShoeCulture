@@ -26,8 +26,18 @@ const userSchema = new mongoose.Schema(
     passwordResetExpiresAt: { type: Date, default: null },
     passwordHistory: { type: [passwordHistorySchema], default: [] },
     passwordChangedAt: { type: Date, default: Date.now },
+    passwordExpiresAt: { type: Date, default: null },
     failedLoginAttempts: { type: Number, default: 0 },
     lockoutUntil: { type: Date, default: null },
+    mfaFailedAttempts: { type: Number, default: 0 },
+    mfaLockoutUntil: { type: Date, default: null },
+    lastLoginAt: { type: Date, default: null },
+    lastLoginIp: { type: String, default: "" },
+    lastLoginAgent: { type: String, default: "" },
+    profileNameEnc: { type: String, default: "" },
+    profilePhoneEnc: { type: String, default: "" },
+    profileAddressEnc: { type: String, default: "" },
+    profileDobEnc: { type: String, default: "" },
   },
   { timestamps: true }
 );

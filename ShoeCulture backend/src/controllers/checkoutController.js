@@ -3,6 +3,7 @@ const { z } = require("zod");
 const Product = require("../models/Product");
 const Order = require("../models/Order");
 const { env } = require("../config/env");
+const { logAuditEvent } = require("../utils/audit");
 
 const checkoutSchema = z.object({
   items: z.array(
@@ -95,6 +96,13 @@ const createCheckoutSession = async (req, res) => {
 
   order.stripeSessionId = session.id;
   await order.save();
+
+  await logAuditEvent({
+    req,
+    action: "checkout.created",
+    targetId: String(order._id),
+    meta: { total, itemCount: orderItems.length },
+  });
 
   return res.json({ url: session.url });
 };

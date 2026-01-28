@@ -6,3 +6,7 @@
 **/dist/
 **/build/
 *.pdf
+uploads/
+docs/
+.tools/
+**/.vite/

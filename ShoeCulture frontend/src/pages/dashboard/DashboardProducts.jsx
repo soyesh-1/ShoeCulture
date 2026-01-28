@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { request } from '../../utils/api.js'
+import { request, requestMultipart } from '../../utils/api.js'
 import useSession from './useSession.js'
 import '../../styles/DashboardPages.css'
 
@@ -19,6 +19,7 @@ function DashboardProducts() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -34,6 +35,25 @@ function DashboardProducts() {
 
   const handleChange = (event) => {
     setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }))
+  }
+
+  const handleImageUpload = async (event) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    setError('')
+    setSuccess('')
+    setUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('image', file)
+      const data = await requestMultipart('/uploads/images', formData)
+      setForm((prev) => ({ ...prev, imageUrl: data.url }))
+      setSuccess('Image uploaded.')
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setUploading(false)
+    }
   }
 
   const handleSubmit = async (event) => {
@@ -127,18 +147,28 @@ function DashboardProducts() {
                 required
               />
             </div>
-            <div className="field field-full">
-              <label htmlFor="imageUrl">Image URL</label>
-              <input
-                id="imageUrl"
-                name="imageUrl"
-                type="url"
-                value={form.imageUrl}
-                onChange={handleChange}
-                placeholder="https://"
-                required
-              />
-            </div>
+          <div className="field field-full">
+            <label htmlFor="imageUrl">Image URL</label>
+            <input
+              id="imageUrl"
+              name="imageUrl"
+              type="url"
+              value={form.imageUrl}
+              onChange={handleChange}
+              placeholder="https://"
+              required
+            />
+          </div>
+          <div className="field field-full">
+            <label htmlFor="imageUpload">Upload image (admin)</label>
+            <input
+              id="imageUpload"
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              disabled={uploading}
+            />
+          </div>
             <div className="field field-full">
               <label htmlFor="description">Description</label>
               <textarea

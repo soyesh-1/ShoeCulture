@@ -46,3 +46,22 @@ const request = async (path, options = {}) => {
 }
 
 export { request }
+export { getCsrfToken }
+
+const requestMultipart = async (path, formData) => {
+  const token = await getCsrfToken()
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: token ? { 'x-csrf-token': token } : undefined,
+    body: formData,
+  })
+  const data = await response.json().catch(() => ({}))
+  if (!response.ok) {
+    const message = data.error || 'Request failed.'
+    throw new Error(Array.isArray(message) ? message.join(' ') : message)
+  }
+  return data
+}
+
+export { requestMultipart }

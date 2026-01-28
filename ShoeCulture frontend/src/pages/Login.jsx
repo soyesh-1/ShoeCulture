@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { request } from '../utils/api.js'
 import '../styles/Auth.css'
@@ -9,6 +9,26 @@ function Login() {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [captcha, setCaptcha] = useState({
+    required: false,
+    token: '',
+    challenge: '',
+  })
+  const [captchaAnswer, setCaptchaAnswer] = useState('')
+
+  const loadCaptcha = async () => {
+    try {
+      const data = await request('/auth/captcha')
+      if (data.required) {
+        setCaptcha({ required: true, token: data.token, challenge: data.challenge })
+      } else {
+        setCaptcha({ required: false, token: '', challenge: '' })
+      }
+      setCaptchaAnswer('')
+    } catch (err) {
+      setCaptcha({ required: false, token: '', challenge: '' })
+    }
+  }
 
   const handleChange = (event) => {
     setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }))
@@ -22,8 +42,17 @@ function Login() {
     try {
       const data = await request('/auth/login', {
         method: 'POST',
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          captchaToken: captcha.required ? captcha.token : undefined,
+          captchaAnswer: captcha.required ? captchaAnswer : undefined,
+        }),
       })
+      if (data.verificationRequired) {
+        localStorage.setItem('pendingEmail', form.email)
+        navigate('/verify-email')
+        return
+      }
       if (data.mfaRequired) {
         localStorage.setItem('pendingEmail', form.email)
         navigate('/mfa')
@@ -33,10 +62,15 @@ function Login() {
       }
     } catch (err) {
       setError(err.message)
+      await loadCaptcha()
     } finally {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    loadCaptcha()
+  }, [])
 
   return (
     <div className="auth">
@@ -64,6 +98,17 @@ function Login() {
               required
             />
           </label>
+          {captcha.required ? (
+            <label>
+              Captcha: {captcha.challenge}
+              <input
+                type="text"
+                value={captchaAnswer}
+                onChange={(event) => setCaptchaAnswer(event.target.value)}
+                required
+              />
+            </label>
+          ) : null}
           {error ? <div className="error">{error}</div> : null}
           {message ? <div className="success">{message}</div> : null}
           <button className="solid" type="submit" disabled={loading}>

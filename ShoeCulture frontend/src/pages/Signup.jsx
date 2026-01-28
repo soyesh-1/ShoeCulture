@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { request } from '../utils/api.js'
+import { evaluatePassword } from '../utils/passwordStrength.js'
 import '../styles/Auth.css'
 
 function Signup() {
@@ -14,6 +15,8 @@ function Signup() {
     setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }))
   }
 
+  const strength = evaluatePassword(form.password)
+
   const handleSubmit = async (event) => {
     event.preventDefault()
     setError('')
@@ -24,8 +27,9 @@ function Signup() {
         method: 'POST',
         body: JSON.stringify(form),
       })
-      setMessage('Account created. You can sign in now.')
-      navigate('/login')
+      localStorage.setItem('pendingEmail', form.email)
+      setMessage('Account created. Verify your email.')
+      navigate('/verify-email')
     } catch (err) {
       setError(err.message)
     } finally {
@@ -59,6 +63,32 @@ function Signup() {
               required
             />
           </label>
+          <div className="strength">
+            <div className="strength-meter">
+              <span className={`bar ${strength.score >= 1 ? 'on' : ''}`} />
+              <span className={`bar ${strength.score >= 2 ? 'on' : ''}`} />
+              <span className={`bar ${strength.score >= 3 ? 'on' : ''}`} />
+              <span className={`bar ${strength.score >= 4 ? 'on' : ''}`} />
+              <span className={`bar ${strength.score >= 5 ? 'on' : ''}`} />
+            </div>
+            <ul className="strength-list">
+              <li className={strength.checks.length ? 'ok' : ''}>
+                At least 10 characters
+              </li>
+              <li className={strength.checks.upper ? 'ok' : ''}>
+                One uppercase letter
+              </li>
+              <li className={strength.checks.lower ? 'ok' : ''}>
+                One lowercase letter
+              </li>
+              <li className={strength.checks.number ? 'ok' : ''}>
+                One number
+              </li>
+              <li className={strength.checks.symbol ? 'ok' : ''}>
+                One symbol
+              </li>
+            </ul>
+          </div>
           {error ? <div className="error">{error}</div> : null}
           {message ? <div className="success">{message}</div> : null}
           <button className="solid" type="submit" disabled={loading}>

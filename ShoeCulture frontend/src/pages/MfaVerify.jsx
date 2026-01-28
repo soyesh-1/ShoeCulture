@@ -19,10 +19,15 @@ function MfaVerify() {
     setMessage('')
     setLoading(true)
     try {
-      await request('/auth/mfa/verify', {
+      const data = await request('/auth/mfa/verify', {
         method: 'POST',
         body: JSON.stringify({ email, token: otp }),
       })
+      if (data.passwordExpired) {
+        setMessage('Password expired. Please update it now.')
+        setTimeout(() => navigate('/account'), 800)
+        return
+      }
       setMessage('Login successful. Redirecting...')
       setTimeout(() => navigate('/dashboard'), 800)
     } catch (err) {

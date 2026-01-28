@@ -35,6 +35,70 @@
   color: var(--ink-500);
 }
 
+.account-form {
+  display: grid;
+  gap: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.account-form h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.account-form label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+
+.account-form input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(16, 17, 20, 0.18);
+  font-family: inherit;
+  background: #ffffff;
+}
+
+.strength {
+  display: grid;
+  gap: 10px;
+}
+
+.strength-meter {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.strength-meter .bar {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(16, 17, 20, 0.15);
+}
+
+.strength-meter .bar.on {
+  background: #1f2937;
+}
+
+.strength-list {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--ink-500);
+  font-size: 0.85rem;
+  display: grid;
+  gap: 4px;
+}
+
+.strength-list li.ok {
+  color: #12744b;
+}
+
 .error {
   color: #b00020;
+}
+
+.success {
+  color: #12744b;
 }

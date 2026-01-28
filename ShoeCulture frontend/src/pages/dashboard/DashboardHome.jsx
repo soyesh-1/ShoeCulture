@@ -1,8 +1,25 @@
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { request } from '../../utils/api.js'
 import useSession from './useSession.js'
 import '../../styles/DashboardPages.css'
 
 function DashboardHome() {
   const { profile, loading } = useSession()
+  const [products, setProducts] = useState([])
+  const [productsLoading, setProductsLoading] = useState(true)
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const data = await request('/products')
+        setProducts(data)
+      } finally {
+        setProductsLoading(false)
+      }
+    }
+    loadProducts()
+  }, [])
 
   return (
     <div className="dashboard-page">
@@ -28,10 +45,38 @@ function DashboardHome() {
           <p>Please sign in to view your dashboard.</p>
         )}
       </div>
-      <div className="dashboard-card">
-        <h2>Security status</h2>
-        <p>Login sessions are protected and monitored.</p>
-      </div>
+      {profile ? (
+        <div className="dashboard-card">
+          <div className="dashboard-card-header">
+            <h2>Products</h2>
+            {profile.role === 'admin' ? (
+              <Link className="ghost" to="/dashboard/products">
+                Manage products
+              </Link>
+            ) : null}
+          </div>
+          {productsLoading ? <p>Loading products...</p> : null}
+          {!productsLoading && products.length === 0 ? (
+            <p>No products yet.</p>
+          ) : null}
+          <div className="dashboard-products">
+            {products
+              .filter((product) => product.imageUrl)
+              .slice(0, 8)
+              .map((product) => (
+                <div key={product._id} className="dashboard-product-card">
+                  <div className="dashboard-product-image">
+                    <img src={product.imageUrl} alt={product.name} />
+                  </div>
+                  <div>
+                    <h3>{product.name}</h3>
+                    <span>Rs {product.price.toLocaleString()}</span>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }
